@@ -1,8 +1,10 @@
-import { IsJWT, IsStrongPassword } from 'class-validator';
+import { IsJWT, IsString, MinLength } from 'class-validator';
 
 export class AuthResetDto {
-  @IsStrongPassword({ minLength: 6 }, { message: 'Password is too weak' })
-  SENHA: string;
+  @IsString()
+  @MinLength(6)
+  password: string;
+
   @IsJWT()
-  TOKEN: string;
+  token: string;
 }

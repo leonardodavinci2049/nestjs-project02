@@ -2,7 +2,7 @@ import {  BadRequestException, Body, Controller, FileTypeValidator, MaxFileSizeV
 import { AuthLoginDto } from './dto/auth-login.dto';
 
 import { AuthResetDto } from './dto/auth-reset.dto';
-import { AuthForGetDto } from './dto/auth-forget.dto';
+import { AuthForgetDto } from './dto/auth-forget.dto';
 
 import { AuthService } from './auth.service';
 import { AuthRegisterDto } from './dto/auth-register.dto';
@@ -22,9 +22,9 @@ export class AuthController {
             ) {}
 
   @Post('login')
-  async login(@Body() { LOGIN, EMAIL_DE_LOGIN, SENHA }: AuthLoginDto) {
+  async login(@Body() {  email, password }: AuthLoginDto) {
     //console.log(LOGIN,EMAIL_DE_LOGIN, SENHA);
-    return this.authService.login(LOGIN, EMAIL_DE_LOGIN, SENHA);
+    return this.authService.login(email, password);
   } 
 
   @Post('register')
@@ -33,13 +33,13 @@ export class AuthController {
   }
 
   @Post('forget')
-  async forget(@Body() body: AuthForGetDto) {
-    return this.authService.forget(body.EMAIL_DE_LOGIN);
+  async forget(@Body() body: AuthForgetDto) {
+    return this.authService.forget(body.email);
   }
 
   @Post('reset')
-  async reset(@Body() { SENHA, TOKEN }: AuthResetDto) {
-    return this.authService.reset(SENHA, TOKEN);
+  async reset(@Body() { password, token }: AuthResetDto) {
+    return this.authService.reset(password, token);
   }
 
   @UseGuards(JwtAuthGuard)

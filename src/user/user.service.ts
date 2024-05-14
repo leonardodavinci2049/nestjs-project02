@@ -1,38 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { PrismaService } from 'src/core/prisma/prisma.service';
+
 import { UpdateUserNameEmailDto } from './dto/update-name-email';
-import { UpdatePathUserDto } from './dto/update-patch-user.dto';
+import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
 //import bcrypt from 'bcrypt';
 import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
-  const;
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+  ) {}
 
-  async create({
-    ID_SYSTEM_CFG_CLIENTE,
-    ID_PESSOA,
-    LOGIN,
-    NOME,
-    EMAIL_DE_LOGIN,
-    SENHA,
-    ROLE,
-    DATADOCADASTRO,
-    DT_UPDATE,
-  }: CreateUserDto) {
+
+  async create(data: CreateUserDto) {
 
   
-    if (EMAIL_DE_LOGIN == null || EMAIL_DE_LOGIN == '') {
+    if (data.email == null || data.email == '') {
       throw new NotFoundException('O email é obrigatório.');
     }
 
-    if (SENHA == null || SENHA == '') {
+    if (data.password == null || data.password == '') {
       throw new NotFoundException('A senha é obrigatória.');
     }
 
-    if (NOME == null || NOME == '') {
+    if (data.name == null || data.name == '') {
       throw new NotFoundException('O nome é obrigatório.');
     }
 
@@ -44,7 +40,7 @@ export class UserService {
 
       //  console.log('salt: ' + salt);
 
-      SENHA = await bcrypt.hash(SENHA, 10);
+      data.password = await bcrypt.hash(data.password, 10);
       
     } catch (error) {
       throw new NotFoundException(error.message);
@@ -52,41 +48,23 @@ export class UserService {
   
 
 
-    const offset = new Date().getTimezoneOffset() * 60000;
+ /*    const offset = new Date().getTimezoneOffset() * 60000;
     const localDate = new Date(Date.now() - offset);
 
-    if (!DATADOCADASTRO) {
-      DATADOCADASTRO = localDate;
+    if (!data.DATADOCADASTRO) {
+      data.DATADOCADASTRO = localDate;
     }
-    if (!DT_UPDATE) {
-      DT_UPDATE = localDate;
-    }
+    if (!data.DT_UPDATE) {
+      data.DT_UPDATE = localDate;
+    } */
+ 
+    return await this.userRepository.create(data);
 
-    return await this.prisma.tbl_system_usuario.create({
-      data: {
-        ID_SYSTEM_CFG_CLIENTE,
-        ID_PESSOA,
-        LOGIN,
-        NOME,
-        EMAIL_DE_LOGIN,
-        SENHA,
-        ROLE,
-        DATADOCADASTRO,
-        DT_UPDATE,
-      },
-      select: {
-        ID_USUARIO_SYSTEM: true,
-        ID_SYSTEM_CFG_CLIENTE: true,
-        NOME: true,
-        ROLE: true,
-        EMAIL_DE_LOGIN: true,
-        DATADOCADASTRO: true,
-      },
-    });
+
   }
 
   async findAll() {
-    return this.prisma.tbl_system_usuario.findMany({
+/*     return this.prisma.tbl_system_usuario.findMany({
       where: {
         EMAIL_DE_LOGIN: {
           contains: '@',
@@ -105,7 +83,7 @@ export class UserService {
         EMAIL_DE_LOGIN: true,
         SENHA: true,
       },
-    });
+    }); */
   }
 
   async findOne(id: number) {
@@ -116,7 +94,7 @@ export class UserService {
 
 
     //console.log('id3: ' + id);
-    return this.prisma.tbl_system_usuario.findUnique({
+   /*  return this.prisma.tbl_system_usuario.findUnique({
       where: {
         ID_USUARIO_SYSTEM: id,
       },
@@ -130,7 +108,7 @@ export class UserService {
         EMAIL_DE_LOGIN: true,
         SENHA: true,
       },
-    });
+    }); */
   }
 
   async update(id: number, data: UpdateUserNameEmailDto) {
@@ -139,48 +117,48 @@ export class UserService {
    // data.SENHA = await bcrypt.hash(SENHA, 10);
 
 
-    return this.prisma.tbl_system_usuario.update({
+  /*   return this.prisma.tbl_system_usuario.update({
       where: {
         ID_USUARIO_SYSTEM: id,
       },
       data,
-    });
+    }); */
   }
 
-  async updatePartial(id: number, { NOME, LOGIN, EMAIL_DE_LOGIN }: UpdatePathUserDto) {
+  async updatePartial(id: number, { name, email }: UpdatePatchUserDto) {
     await this.userExists(id);
 
-    if (NOME == null || NOME == '') {
+    if (name == null || name == '') {
       throw new NotFoundException('O nome é obrigatório.');
     }
 
-    return this.prisma.tbl_system_usuario.update({
+/*     return this.prisma.tbl_system_usuario.update({
       data: { NOME, LOGIN, EMAIL_DE_LOGIN },
       where: {
         ID_USUARIO_SYSTEM: id,
       },
-    });
+    }); */
   }
 
   async remove(id: number) {
     await this.userExists(id);
 
-    return this.prisma.tbl_system_usuario.delete({
+ /*    return this.prisma.tbl_system_usuario.delete({
       where: {
         ID_USUARIO_SYSTEM: id,
       },
-    });
+    }); */
   }
 
   async userExists(id: number) {
-    const user = await this.prisma.tbl_system_usuario.count({
+/*     const user = await this.prisma.tbl_system_usuario.count({
       where: {
         ID_USUARIO_SYSTEM: id,
       },
-    });
+    }); */
 
-    if (!user) {
+ /*    if (!user) {
       throw new NotFoundException(`O usuário ${id} não foi encontrado.`);
-    }
+    } */
   }
 }

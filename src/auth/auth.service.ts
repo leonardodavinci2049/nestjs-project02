@@ -1,10 +1,13 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/core/prisma/prisma.service';
+
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+
 import { AuthRegisterDto } from './dto/auth-register.dto';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -12,25 +15,23 @@ export class AuthService {
   private audience = 'user';
 
   constructor(
-    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
-  createToken(user: AuthRegisterDto) {
+  createToken(user: UserEntity) {
     return {
       accessToken: this.jwtService.sign(
         {
-          //Payload
-          id: user.ID_USUARIO_SYSTEM,
-          ID_SYSTEM: user.ID_SYSTEM_CFG_CLIENTE,
-          name: user.NOME,
-          role: user.ROLE,
+          id: user.id,
+          name: user.name,
+          email: user.email,
         },
         {
-          //options
           expiresIn: '7 days',
-          subject: user.ID_USUARIO_SYSTEM.toString(),
+          subject: String(user.id),
           issuer: this.issuer,
           audience: this.audience,
         },
@@ -38,12 +39,11 @@ export class AuthService {
     };
   }
 
-
   checkToken(token: string) {
     try {
       const data = this.jwtService.verify(token, {
-        issuer: this.issuer, //verifica se o token foi emitido pelo servidor
-        audience: this.audience, // verifica se o token é para o usuário
+        issuer: this.issuer,
+        audience: this.audience,
       });
 
       return data;
@@ -51,6 +51,7 @@ export class AuthService {
       throw new BadRequestException(e);
     }
   }
+
 
 
 
@@ -67,25 +68,25 @@ export class AuthService {
   
 
   async validateUser(payload: any) {
-    return await this.prisma.tbl_system_usuario.findFirst({
+/*     return await this.prisma.tbl_system_usuario.findFirst({
       where: {
         ID_USUARIO_SYSTEM: payload.id,
       },
-    });
+    }); */
   }
 
   async register(useRegister: AuthRegisterDto) {
     const user = await this.userService.create(useRegister);
 
-    return this.createToken(user);
+   // return this.createToken(user);
   }
 
 
-  async login(login: string, email: string, password: string) {
+  async login( email: string, password: string) {
 
-    const userLogin = await this.prisma.tbl_system_usuario.findFirst({
+    const userLogin = await this.userRepository.findOne({
       where: {
-        EMAIL_DE_LOGIN: email,
+        email: email,
       },
     });   
 
@@ -98,11 +99,13 @@ export class AuthService {
   //} 
 
     return this.createToken(userLogin);
-    //return this.createToken(user);
+    //return this.createToken(user); */
+
+    return true;
   }
 
   async forget(email: string) {
-    const user = await this.prisma.tbl_system_usuario.findFirst({
+/*     const user = await this.prisma.tbl_system_usuario.findFirst({
       where: {
         EMAIL_DE_LOGIN: email,
       },
@@ -110,7 +113,7 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException('Email incorreto');
-    }
+    } */
 
     /*   
     const token = this.jwtService.sign({
@@ -150,15 +153,15 @@ export class AuthService {
       const salt = await bcrypt.genSalt();
       password = await bcrypt.hash(password, salt);
 
-      const userPasswordReset = await this.prisma.tbl_system_usuario.update({
+ /*      const userPasswordReset = await this.prisma.tbl_system_usuario.update({
         where: {
           ID_USUARIO_SYSTEM: Number(data.id),
         },
         data: {
           SENHA: password,
         },
-      });
-      return this.createToken(userPasswordReset);
+      }); 
+      return this.createToken(userPasswordReset);*/
     } catch (e) {
       throw new BadRequestException(e);
     }

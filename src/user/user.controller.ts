@@ -23,6 +23,7 @@ import { LogInterceptor } from 'src/core/interceptors/log.interceptors';
 import { JwtAuthGuard } from 'src/core/guards/jwt.auth.guard';
 import { RoleGuard } from 'src/core/guards/role.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
 
 
 //@UseInterceptors(LogInterceptor)
@@ -57,7 +58,7 @@ export class UserController {
   }
   
   @Patch('/partial/:id')
-  async updatePartial(@Body() data: UpdateUserEmailDto, @Param('id', ParseIntPipe) id: number) {
+  async updatePartial(@Body() data: UpdatePatchUserDto, @ParamId() id: number) {
     return this.userService.updatePartial(id, data);
   }
 
