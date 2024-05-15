@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { UpdateUserNameEmailDto } from './dto/update-name-email';
@@ -32,8 +32,7 @@ export class UserService {
       throw new NotFoundException('O nome é obrigatório.');
     }
 
-   // console.log('SENHA: ' + SENHA);
-
+ 
     try {
 
      //   const salt = await bcrypt.genSalt(10);
@@ -41,9 +40,17 @@ export class UserService {
       //  console.log('salt: ' + salt);
 
       data.password = await bcrypt.hash(data.password, 10);
+      console.log('SENHA: ' + data.password);
+ 
+     const user = this.userRepository.create(data);
+
+     return this.userRepository.save(user);
+
+     
+
       
     } catch (error) {
-      throw new NotFoundException(error.message);
+      throw new BadRequestException(error.message);
     }
   
 
@@ -57,33 +64,14 @@ export class UserService {
     if (!data.DT_UPDATE) {
       data.DT_UPDATE = localDate;
     } */
- 
-    return await this.userRepository.create(data);
 
 
   }
 
   async findAll() {
-/*     return this.prisma.tbl_system_usuario.findMany({
-      where: {
-        EMAIL_DE_LOGIN: {
-          contains: '@',
-        },
-      },
-      take: 10,
-      orderBy: {
-        ID_USUARIO_SYSTEM: 'desc',
-      },
-      select: {
-        ID_USUARIO_SYSTEM: true,
-        ID_SYSTEM_CFG_CLIENTE: true,
-        ID_PESSOA: true,
-        LOGIN: true,
-        NOME: true,
-        EMAIL_DE_LOGIN: true,
-        SENHA: true,
-      },
-    }); */
+     return this.userRepository.find({
+      take: 10
+    }); 
   }
 
   async findOne(id: number) {
@@ -94,71 +82,58 @@ export class UserService {
 
 
     //console.log('id3: ' + id);
-   /*  return this.prisma.tbl_system_usuario.findUnique({
+    return this.userRepository.findOne({
       where: {
-        ID_USUARIO_SYSTEM: id,
+        id: id,
       },
       select: {
-        ID_USUARIO_SYSTEM: true,
-        ID_SYSTEM_CFG_CLIENTE: true,
-        ID_PESSOA: true,
-        LOGIN: true,
-        NOME: true,  
-        ROLE: true,  
-        EMAIL_DE_LOGIN: true,
-        SENHA: true,
+        id: true,      
+        name: true,  
+        role: true,  
+        email: true
       },
-    }); */
+    }); 
   }
 
-  async update(id: number, data: UpdateUserNameEmailDto) {
+  async update(id: number, data: CreateUserDto) {
     await this.userExists(id);
 
-   // data.SENHA = await bcrypt.hash(SENHA, 10);
+   data.password = await bcrypt.hash(data.password, 10);
 
 
-  /*   return this.prisma.tbl_system_usuario.update({
-      where: {
-        ID_USUARIO_SYSTEM: id,
-      },
-      data,
-    }); */
+    return this.userRepository.update(id, {    
+        email: data.email,
+        name: data.name,
+        birthAt: data.birthAt ? new Date(data.birthAt) : null,
+        role: data.role,
+      }); 
   }
 
-  async updatePartial(id: number, { name, email }: UpdatePatchUserDto) {
+  async updatePartial(id: number, data: CreateUserDto) {
     await this.userExists(id);
 
-    if (name == null || name == '') {
+    if (data.name == null || data.name == '') {
       throw new NotFoundException('O nome é obrigatório.');
     }
 
-/*     return this.prisma.tbl_system_usuario.update({
-      data: { NOME, LOGIN, EMAIL_DE_LOGIN },
-      where: {
-        ID_USUARIO_SYSTEM: id,
-      },
-    }); */
+    return this.userRepository.update(id, data); 
+
   }
 
   async remove(id: number) {
     await this.userExists(id);
 
- /*    return this.prisma.tbl_system_usuario.delete({
-      where: {
-        ID_USUARIO_SYSTEM: id,
-      },
-    }); */
+   return this.userRepository.delete(id); 
   }
 
   async userExists(id: number) {
-/*     const user = await this.prisma.tbl_system_usuario.count({
+     const user = await this.userRepository.count({
       where: {
-        ID_USUARIO_SYSTEM: id,
+        id: id,
       },
-    }); */
-
- /*    if (!user) {
+    }); 
+  if (!user) {
       throw new NotFoundException(`O usuário ${id} não foi encontrado.`);
-    } */
+    } 
   }
 }

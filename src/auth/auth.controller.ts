@@ -21,29 +21,29 @@ export class AuthController {
               private readonly fileServiceV2: FileServiceV2
             ) {}
 
-  @Post('login')
+  @Post('v2/login')
   async login(@Body() {  email, password }: AuthLoginDto) {
     //console.log(LOGIN,EMAIL_DE_LOGIN, SENHA);
     return this.authService.login(email, password);
   } 
 
-  @Post('register')
+  @Post('v2/register')
   async register(@Body() data: AuthRegisterDto) {
     return this.authService.register(data);
   }
 
-  @Post('forget')
+  @Post('v2/forget')
   async forget(@Body() body: AuthForgetDto) {
     return this.authService.forget(body.email);
   }
 
-  @Post('reset')
+  @Post('v2/reset')
   async reset(@Body() { password, token }: AuthResetDto) {
     return this.authService.reset(password, token);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('checkToken')
+  @Post('v2/checkToken')
   async checkToken(@Req() Req, @User('ID_USUARIO_SYSTEM') user) {
 
      //  Req.tokenPayload essa propriedade foi criada no jwt.auth.guard.ts

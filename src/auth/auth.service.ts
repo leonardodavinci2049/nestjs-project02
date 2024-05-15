@@ -78,7 +78,7 @@ export class AuthService {
   async register(useRegister: AuthRegisterDto) {
     const user = await this.userService.create(useRegister);
 
-   // return this.createToken(user);
+    return this.createToken(user);
   }
 
 
@@ -90,52 +90,56 @@ export class AuthService {
       },
     });   
 
+
+   // const user = await this.userLogin;
+
+
+    console.log('USUÁRIO: ', {userLogin});
+
     if (!userLogin) {
       throw new UnauthorizedException('Login e/ou Senha Incorretos.');
     }
+ 
+      if (!await bcrypt.compare(password, userLogin.password)) {
+      throw new UnauthorizedException('E-mail e/ou senha incorretos.');
+  } 
 
-    //  if (!await bcrypt.compare(password, userLogin.SENHA)) {
-     // throw new UnauthorizedException('E-mail e/ou senha incorretos.');
-  //} 
+
+
 
     return this.createToken(userLogin);
     //return this.createToken(user); */
 
-    return true;
   }
 
   async forget(email: string) {
-/*     const user = await this.prisma.tbl_system_usuario.findFirst({
+     const user = await this.userRepository.findOne({
       where: {
-        EMAIL_DE_LOGIN: email,
+        email: email,
       },
-    });
+    });   
 
     if (!user) {
       throw new UnauthorizedException('Email incorreto');
-    } */
+    } 
 
-    /*   
+
     const token = this.jwtService.sign({
-      id: user.ID_SYSTEM_CFG_CLIENTE
+      id: user.id
   }, {
       expiresIn: "30 minutes",
-      subject: String(user.ID_SYSTEM_CFG_CLIENTE),
+      subject: String(user.id),
       issuer: 'forget',
       audience: 'users',
-  }); */
-    /* 
-  await this.mailer.sendMail({
-      subject: 'Recuperação de Senha',
-      to: 'joao@hcode.com.br',
-      template: 'forget',
-      context: {
-          name: user.name,
-          token
-      }
-  }); */
+  }); 
+  
 
-    return true;
+
+
+
+
+    return token;
+  
   }
 
   async reset(password: string, token: string) {
@@ -153,15 +157,19 @@ export class AuthService {
       const salt = await bcrypt.genSalt();
       password = await bcrypt.hash(password, salt);
 
- /*      const userPasswordReset = await this.prisma.tbl_system_usuario.update({
-        where: {
-          ID_USUARIO_SYSTEM: Number(data.id),
-        },
-        data: {
-          SENHA: password,
-        },
+      await this.userRepository.update({     
+        id: Number(data.id),
+      },
+      {
+        password: password
       }); 
-      return this.createToken(userPasswordReset);*/
+
+      const userPasswordReset = await this.userService.findOne( Number(data.id));
+    
+
+
+
+      return this.createToken(userPasswordReset);
     } catch (e) {
       throw new BadRequestException(e);
     }
