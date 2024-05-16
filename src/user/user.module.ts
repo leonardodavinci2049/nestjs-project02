@@ -2,12 +2,10 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod, forwardRef } fro
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 
-import { UserIdCheckMiddleware } from 'src/core/middlewares/user-id-check.middleware';
-import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
-
-
+import { AuthModule } from '../auth/auth.module';
+import { UserIdCheckMiddleware } from '../core/middlewares/user-id-check.middleware';
 
 @Module({
   imports: [forwardRef(() => AuthModule),

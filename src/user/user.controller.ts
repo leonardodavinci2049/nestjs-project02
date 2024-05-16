@@ -8,23 +8,15 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  UseInterceptors,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-
 import { CreateUserDto } from './dto/create-user.dto';
-
-import { ParamId } from 'src/core/decorators/param-id.decorator';
-import { UpdateUserEmailDto } from './dto/update-email.dto ';
-import { Roles } from 'src/core/decorators/role.decorator';
-import { Role } from 'src/core/enums/role.enum';
-import { LogInterceptor } from 'src/core/interceptors/log.interceptors';
-import { JwtAuthGuard } from 'src/core/guards/jwt.auth.guard';
-import { RoleGuard } from 'src/core/guards/role.guard';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { UpdatePatchUserDto } from './dto/update-patch-user.dto';
-
+import { Roles } from '../core/decorators/role.decorator';
+import { Role } from '../core/enums/role.enum';
+import { JwtAuthGuard } from '../core/guards/jwt.auth.guard';
+import { RoleGuard } from '../core/guards/role.guard';
+import { ParamId } from '../core/decorators/param-id.decorator';
 
 //@UseInterceptors(LogInterceptor)
 @Roles(Role.Admin)

@@ -7,11 +7,12 @@ import { AuthForgetDto } from './dto/auth-forget.dto';
 import { AuthService } from './auth.service';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { JwtAuthGuard } from '../core/guards/jwt.auth.guard';
-import { User } from 'src/core/decorators/user.decorator';
+
 import {  FileFieldsInterceptor, FileInterceptor, FilesInterceptor} from '@nestjs/platform-express';
 import {join} from 'path';
-import { FileServiceV2 } from "src/file/file.service";
 import { writeFile } from 'fs';
+import { FileServiceV2 } from '../file/file.service';
+import { User } from '../core/decorators/user.decorator';
 
 
 @Controller('auth')
